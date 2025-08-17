@@ -9,37 +9,24 @@
 #include "chatbot.h"
 
 // constructor WITHOUT memory allocation
-ChatBot::ChatBot()
+ChatBot::ChatBot() : _chatLogic(nullptr), _rootNode(nullptr)
 {
-    // invalidate data handles
-    _image = nullptr;
-    _chatLogic = nullptr;
-    _rootNode = nullptr;
+  //  std::cout << "ChatBot Default constructor" << std::endl;
+
 }
 
 // constructor WITH memory allocation
-ChatBot::ChatBot(std::string filename)
+ChatBot::ChatBot(std::string filename) :
+   _image(std::make_unique<wxBitmap>(filename, wxBITMAP_TYPE_PNG)),
+   _chatLogic(nullptr), _rootNode(nullptr)
 {
     std::cout << "ChatBot Constructor" << std::endl;
-    
-    // invalidate data handles
-    _chatLogic = nullptr;
-    _rootNode = nullptr;
-
-    // load image into heap memory
-    _image = new wxBitmap(filename, wxBITMAP_TYPE_PNG);
 }
 
 ChatBot::~ChatBot()
 {
     std::cout << "ChatBot Destructor" << std::endl;
 
-    // deallocate heap memory
-    if(_image != NULL) // Attention: wxWidgets used NULL and not nullptr
-    {
-        delete _image;
-        _image = NULL;
-    }
 }
 
 //// STUDENT CODE
@@ -51,16 +38,19 @@ ChatBot::ChatBot(const ChatBot& src)
    std::cout << "ChatBot copy constructor" << std::endl;
    _chatLogic = src._chatLogic;
    _rootNode = src._rootNode;
-   _image = new wxBitmap(*src._image);
+   _image = std::make_unique<wxBitmap>(*src._image);
 }
 // Move constructor
-ChatBot::ChatBot(ChatBot&& src)
+ChatBot::ChatBot(ChatBot&& src)  noexcept
 {
    std::cout << "ChatBot move constructor" << std::endl;
    _chatLogic = src._chatLogic;
    _rootNode = src._rootNode;
-   _image = src._image;
-   src._image = nullptr;
+   _image = std::move(src._image);
+   if (_chatLogic != nullptr)
+   {
+      _chatLogic->SetChatbotHandle(this);
+   }
 }
 // Assigning copy op
 ChatBot& ChatBot::operator=(const ChatBot& src)
@@ -68,17 +58,20 @@ ChatBot& ChatBot::operator=(const ChatBot& src)
    std::cout << "ChatBot copy assignment" << std::endl;
    _chatLogic = src._chatLogic;
    _rootNode = src._rootNode;
-   _image = new wxBitmap(*src._image);
+   _image = std::make_unique<wxBitmap>(*src._image);
    return *this;
 }
 // Assigning move op
-ChatBot& ChatBot::operator=(ChatBot&& src)
+ChatBot& ChatBot::operator=(ChatBot&& src)  noexcept
 {
    std::cout << "ChatBot move assignment" << std::endl;
    _chatLogic = src._chatLogic;
    _rootNode = src._rootNode;
-   _image = src._image;
-   src._image = nullptr;
+   _image = std::move(src._image);
+   if (_chatLogic != nullptr)
+   {
+      _chatLogic->SetChatbotHandle(this);
+   }
    return *this;
 }
 
