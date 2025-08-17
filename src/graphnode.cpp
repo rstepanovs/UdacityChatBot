@@ -11,7 +11,8 @@ GraphNode::~GraphNode()
     //// STUDENT CODE
     ////
 
-    delete _chatBot; 
+    // ChatLogic creates the object and should delete it.
+    //delete _chatBot;
 
     ////
     //// EOF STUDENT CODE
